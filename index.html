@@ -126,14 +126,15 @@ const SECTOR_COLORS = {
   "소프트웨어":["#faeeda","#854f0b"]
 };
 const THRESHOLD = 20;
-const PROXY = "https://query1.finance.yahoo.com/v8/finance/chart/";
-
 let allData = [], activeFilter = "전체", sortMode = "drop";
 
 async function fetchQuote(ticker) {
-  const url = `${PROXY}${ticker}?interval=1d&range=1y`;
-  const res = await fetch(url);
-  const json = await res.json();
+  // allorigins 프록시를 통해 CORS 우회
+  const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1y`;
+  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(yahooUrl)}`;
+  const res = await fetch(proxyUrl);
+  const outer = await res.json();
+  const json = JSON.parse(outer.contents);
   const result = json.chart.result[0];
   const meta = result.meta;
   const closes = result.indicators.quote[0].close.filter(Boolean);
